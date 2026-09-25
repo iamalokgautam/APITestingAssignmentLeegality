@@ -1,0 +1,1096 @@
+Access is denied.
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------< com.leegality.assignment:restful-booker-api-automation >-------
+[INFO] Building restful-booker-api-automation 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ restful-booker-api-automation ---
+[INFO] skip non existing resourceDirectory C:\Users\alokg\Documents\Codex\2026-09-24\act-like-you-have-20-years\work\project-explain\restful-booker-api-automation\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ restful-booker-api-automation ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ restful-booker-api-automation ---
+[INFO] Copying 2 resources from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ restful-booker-api-automation ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.2:test (default-test) @ restful-booker-api-automation ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junit4.JUnit4Provider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.leegality.api.RunCucumberTest
+
+@smoke @crud @P1
+Scenario: Create, read, update, and cancel a booking            # src/test/resources/features/bookings.feature:6
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available                            # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> POST https://restful-booker.herokuapp.com/booking
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":"QA855367576521300","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}
+<<< HTTP 200
+Response body: {"bookingid":2986,"booking":{"firstname":"QA855367576521300","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}}
+  When I create a valid booking                                 # com.leegality.api.steps.BookingSteps.createValidBooking()
+  Then the booking is created with a valid response contract    # com.leegality.api.steps.BookingSteps.createdBookingHasValidContract()
+
+>>> GET https://restful-booker.herokuapp.com/booking/2986
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 200
+Response body: {"firstname":"QA855367576521300","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}
+  When I read that booking                                      # com.leegality.api.steps.BookingSteps.readCreatedBooking()
+  Then the booking body matches the created data                # com.leegality.api.steps.BookingSteps.bookingBodyMatchesCreatedData()
+
+>>> PUT https://restful-booker.herokuapp.com/booking/2986
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":"Updated855372924054000","lastname":"Automation","totalprice":310,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}
+<<< HTTP 200
+Response body: {"firstname":"Updated855372924054000","lastname":"Automation","totalprice":310,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}
+  When I update that booking with PUT                           # com.leegality.api.steps.BookingSteps.updateBookingWithPut()
+
+>>> GET https://restful-booker.herokuapp.com/booking/2986
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 200
+Response body: {"firstname":"Updated855372924054000","lastname":"Automation","totalprice":310,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}
+  Then the update is accepted and persisted                     # com.leegality.api.steps.BookingSteps.fullUpdateIsPersisted()
+
+>>> POST https://restful-booker.herokuapp.com/auth
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: [authentication payload redacted]
+<<< HTTP 200
+Response body: {"token":"[REDACTED]"}
+
+>>> PATCH https://restful-booker.herokuapp.com/booking/2986
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"additionalneeds":"Late checkout"}
+<<< HTTP 200
+Response body: {"firstname":"Updated855372924054000","lastname":"Automation","totalprice":310,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Late checkout"}
+  When I partially update that booking with PATCH using a token # com.leegality.api.steps.BookingSteps.patchBookingWithToken()
+
+>>> GET https://restful-booker.herokuapp.com/booking/2986
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 200
+Response body: {"firstname":"Updated855372924054000","lastname":"Automation","totalprice":310,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Late checkout"}
+  Then the partial update preserves other fields                # com.leegality.api.steps.BookingSteps.partialUpdatePreservesOtherFields()
+
+>>> DELETE https://restful-booker.herokuapp.com/booking/2986
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  When I delete that booking                                    # com.leegality.api.steps.BookingSteps.deleteCreatedBooking()
+
+>>> GET https://restful-booker.herokuapp.com/booking/2986
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 404
+Response body: Not Found
+  Then the booking is deleted and cannot be read                # com.leegality.api.steps.BookingSteps.deletedBookingIsNotReadable()
+
+@auth @P1
+Scenario: Retrieve an authentication token      # src/test/resources/features/bookings.feature:19
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available            # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> POST https://restful-booker.herokuapp.com/auth
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: [authentication payload redacted]
+<<< HTTP 200
+Response body: {"token":"[REDACTED]"}
+  When I request an authentication token        # com.leegality.api.steps.BookingSteps.requestAuthenticationToken()
+  Then the token response has a non-empty token # com.leegality.api.steps.BookingSteps.tokenIsPresent()
+
+@auth @negative @P1
+Scenario: PUT rejects missing credentials without mutating a booking # src/test/resources/features/bookings.feature:24
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available                                 # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> POST https://restful-booker.herokuapp.com/booking
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":"QA855387050232900","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}
+<<< HTTP 200
+Response body: {"bookingid":3148,"booking":{"firstname":"QA855387050232900","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}}
+  Given I have a booking for authorization checks                    # com.leegality.api.steps.BookingSteps.createAuthorizationFixture()
+
+>>> PUT https://restful-booker.herokuapp.com/booking/3148
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":"Unauthorized change","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}
+<<< HTTP 403
+Response body: Forbidden
+  When I try to replace that booking without credentials             # com.leegality.api.steps.BookingSteps.tryPutWithoutCredentials()
+
+>>> GET https://restful-booker.herokuapp.com/booking/3148
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 200
+Response body: {"firstname":"QA855387050232900","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}
+  Then the PUT is rejected and the original booking remains          # com.leegality.api.steps.BookingSteps.unauthenticatedPutDoesNotChangeBooking()
+
+>>> DELETE https://restful-booker.herokuapp.com/booking/3148
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+
+@auth @negative @P1
+Scenario: DELETE rejects missing credentials without deleting a booking # src/test/resources/features/bookings.feature:30
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available                                    # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> POST https://restful-booker.herokuapp.com/booking
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":"QA855394261921700","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}
+<<< HTTP 200
+Response body: {"bookingid":3218,"booking":{"firstname":"QA855394261921700","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}}
+  Given I have a booking for authorization checks                       # com.leegality.api.steps.BookingSteps.createAuthorizationFixture()
+
+>>> DELETE https://restful-booker.herokuapp.com/booking/3218
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 403
+Response body: Forbidden
+  When I try to delete that booking without credentials                 # com.leegality.api.steps.BookingSteps.tryDeleteWithoutCredentials()
+
+>>> GET https://restful-booker.herokuapp.com/booking/3218
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 200
+Response body: {"firstname":"QA855394261921700","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}
+  Then the DELETE is rejected and the booking remains                   # com.leegality.api.steps.BookingSteps.unauthenticatedDeleteDoesNotDeleteBooking()
+
+>>> DELETE https://restful-booker.herokuapp.com/booking/3218
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+
+@auth @negative @P1
+Scenario: PATCH rejects an invalid token without mutating a booking # src/test/resources/features/bookings.feature:36
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available                                # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> POST https://restful-booker.herokuapp.com/booking
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":"QA855401285355400","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}
+<<< HTTP 200
+Response body: {"bookingid":3277,"booking":{"firstname":"QA855401285355400","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}}
+  Given I have a booking for authorization checks                   # com.leegality.api.steps.BookingSteps.createAuthorizationFixture()
+
+>>> PATCH https://restful-booker.herokuapp.com/booking/3277
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":"Unauthorized change"}
+<<< HTTP 403
+Response body: Forbidden
+  When I try to patch that booking with an invalid token            # com.leegality.api.steps.BookingSteps.tryPatchWithInvalidToken()
+
+>>> GET https://restful-booker.herokuapp.com/booking/3277
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 200
+Response body: {"firstname":"QA855401285355400","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}
+  Then the PATCH is rejected and the original booking remains       # com.leegality.api.steps.BookingSteps.invalidTokenPatchDoesNotChangeBooking()
+
+>>> DELETE https://restful-booker.herokuapp.com/booking/3277
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+
+@create @negative @P1
+Scenario Outline: Invalid booking payloads are rejected # src/test/resources/features/bookings.feature:47
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available                    # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> POST https://restful-booker.herokuapp.com/booking
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {}
+<<< HTTP 500
+Response body: Internal Server Error
+  When I create a booking with payload '{}'             # com.leegality.api.steps.BookingSteps.createBookingWithPayload(java.lang.String)
+  Then the request is rejected with status 400          # com.leegality.api.steps.BookingSteps.requestIsRejected(int)
+      java.lang.AssertionError: 1 expectation failed.
+Expected status code <400> but was <500>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCallConstructor(CallSiteArray.java:57)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:263)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.requestIsRejected(BookingSteps.java:220)
+	at ✽.the request is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:44)
+
+
+@create @negative @P1
+Scenario Outline: Invalid booking payloads are rejected           # src/test/resources/features/bookings.feature:48
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available                              # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> POST https://restful-booker.herokuapp.com/booking
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":"OnlyName"}
+<<< HTTP 500
+Response body: Internal Server Error
+  When I create a booking with payload '{"firstname":"OnlyName"}' # com.leegality.api.steps.BookingSteps.createBookingWithPayload(java.lang.String)
+  Then the request is rejected with status 400                    # com.leegality.api.steps.BookingSteps.requestIsRejected(int)
+      java.lang.AssertionError: 1 expectation failed.
+Expected status code <400> but was <500>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.requestIsRejected(BookingSteps.java:220)
+	at ✽.the request is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:44)
+
+
+@create @negative @P1
+Scenario Outline: Invalid booking payloads are rejected                                                                                                                        # src/test/resources/features/bookings.feature:49
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available                                                                                                                                           # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> POST https://restful-booker.herokuapp.com/booking
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":123,"lastname":"Bad","totalprice":20,"depositpaid":true,"bookingdates":{"checkin":"2030-12-01","checkout":"2030-12-03"}}
+<<< HTTP 500
+Response body: Internal Server Error
+  When I create a booking with payload '{"firstname":123,"lastname":"Bad","totalprice":20,"depositpaid":true,"bookingdates":{"checkin":"2030-12-01","checkout":"2030-12-03"}}' # com.leegality.api.steps.BookingSteps.createBookingWithPayload(java.lang.String)
+  Then the request is rejected with status 400                                                                                                                                 # com.leegality.api.steps.BookingSteps.requestIsRejected(int)
+      java.lang.AssertionError: 1 expectation failed.
+Expected status code <400> but was <500>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.requestIsRejected(BookingSteps.java:220)
+	at ✽.the request is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:44)
+
+
+@create @negative @P1
+Scenario Outline: Invalid booking payloads are rejected                                                                                                                                  # src/test/resources/features/bookings.feature:50
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available                                                                                                                                                     # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> POST https://restful-booker.herokuapp.com/booking
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":"Bad","lastname":"Price","totalprice":"twenty","depositpaid":true,"bookingdates":{"checkin":"2030-12-01","checkout":"2030-12-03"}}
+<<< HTTP 200
+Response body: {"bookingid":3418,"booking":{"firstname":"Bad","lastname":"Price","totalprice":null,"depositpaid":true,"bookingdates":{"checkin":"2030-12-01","checkout":"2030-12-03"}}}
+  When I create a booking with payload '{"firstname":"Bad","lastname":"Price","totalprice":"twenty","depositpaid":true,"bookingdates":{"checkin":"2030-12-01","checkout":"2030-12-03"}}' # com.leegality.api.steps.BookingSteps.createBookingWithPayload(java.lang.String)
+  Then the request is rejected with status 400                                                                                                                                           # com.leegality.api.steps.BookingSteps.requestIsRejected(int)
+      java.lang.AssertionError: 1 expectation failed.
+Expected status code <400> but was <200>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.requestIsRejected(BookingSteps.java:220)
+	at ✽.the request is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:44)
+
+
+>>> DELETE https://restful-booker.herokuapp.com/booking/3418
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+
+@create @negative @P1
+Scenario Outline: Invalid booking payloads are rejected                                                                                                                           # src/test/resources/features/bookings.feature:51
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available                                                                                                                                              # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> POST https://restful-booker.herokuapp.com/booking
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":"Bad","lastname":"Deposit","totalprice":20,"depositpaid":1,"bookingdates":{"checkin":"2030-12-01","checkout":"2030-12-03"}}
+<<< HTTP 200
+Response body: {"bookingid":3455,"booking":{"firstname":"Bad","lastname":"Deposit","totalprice":20,"depositpaid":true,"bookingdates":{"checkin":"2030-12-01","checkout":"2030-12-03"}}}
+  When I create a booking with payload '{"firstname":"Bad","lastname":"Deposit","totalprice":20,"depositpaid":1,"bookingdates":{"checkin":"2030-12-01","checkout":"2030-12-03"}}' # com.leegality.api.steps.BookingSteps.createBookingWithPayload(java.lang.String)
+  Then the request is rejected with status 400                                                                                                                                    # com.leegality.api.steps.BookingSteps.requestIsRejected(int)
+      java.lang.AssertionError: 1 expectation failed.
+Expected status code <400> but was <200>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.requestIsRejected(BookingSteps.java:220)
+	at ✽.the request is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:44)
+
+
+>>> DELETE https://restful-booker.herokuapp.com/booking/3455
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+
+@create @negative @P1
+Scenario Outline: Invalid booking payloads are rejected                                                                                                                            # src/test/resources/features/bookings.feature:52
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available                                                                                                                                               # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> POST https://restful-booker.herokuapp.com/booking
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":"Bad","lastname":"Price","totalprice":-1,"depositpaid":true,"bookingdates":{"checkin":"2030-12-01","checkout":"2030-12-03"}}
+<<< HTTP 200
+Response body: {"bookingid":3493,"booking":{"firstname":"Bad","lastname":"Price","totalprice":-1,"depositpaid":true,"bookingdates":{"checkin":"2030-12-01","checkout":"2030-12-03"}}}
+  When I create a booking with payload '{"firstname":"Bad","lastname":"Price","totalprice":-1,"depositpaid":true,"bookingdates":{"checkin":"2030-12-01","checkout":"2030-12-03"}}' # com.leegality.api.steps.BookingSteps.createBookingWithPayload(java.lang.String)
+  Then the request is rejected with status 400                                                                                                                                     # com.leegality.api.steps.BookingSteps.requestIsRejected(int)
+      java.lang.AssertionError: 1 expectation failed.
+Expected status code <400> but was <200>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.requestIsRejected(BookingSteps.java:220)
+	at ✽.the request is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:44)
+
+
+>>> DELETE https://restful-booker.herokuapp.com/booking/3493
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+
+@create @negative @P1
+Scenario Outline: Invalid booking payloads are rejected                                                                                                                           # src/test/resources/features/bookings.feature:53
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available                                                                                                                                              # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> POST https://restful-booker.herokuapp.com/booking
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":"Bad","lastname":"Date","totalprice":25,"depositpaid":true,"bookingdates":{"checkin":"2030-12-10","checkout":"2030-12-01"}}
+<<< HTTP 200
+Response body: {"bookingid":3539,"booking":{"firstname":"Bad","lastname":"Date","totalprice":25,"depositpaid":true,"bookingdates":{"checkin":"2030-12-10","checkout":"2030-12-01"}}}
+  When I create a booking with payload '{"firstname":"Bad","lastname":"Date","totalprice":25,"depositpaid":true,"bookingdates":{"checkin":"2030-12-10","checkout":"2030-12-01"}}' # com.leegality.api.steps.BookingSteps.createBookingWithPayload(java.lang.String)
+  Then the request is rejected with status 400                                                                                                                                    # com.leegality.api.steps.BookingSteps.requestIsRejected(int)
+      java.lang.AssertionError: 1 expectation failed.
+Expected status code <400> but was <200>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.requestIsRejected(BookingSteps.java:220)
+	at ✽.the request is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:44)
+
+
+>>> DELETE https://restful-booker.herokuapp.com/booking/3539
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+
+@create @negative @P1
+Scenario Outline: Invalid booking payloads are rejected                                                                                                                           # src/test/resources/features/bookings.feature:54
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available                                                                                                                                              # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> POST https://restful-booker.herokuapp.com/booking
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":"Bad","lastname":"Date","totalprice":25,"depositpaid":true,"bookingdates":{"checkin":"not-a-date","checkout":"2030-12-03"}}
+<<< HTTP 200
+Response body: {"bookingid":3575,"booking":{"firstname":"Bad","lastname":"Date","totalprice":25,"depositpaid":true,"bookingdates":{"checkin":"0NaN-aN-aN","checkout":"2030-12-03"}}}
+  When I create a booking with payload '{"firstname":"Bad","lastname":"Date","totalprice":25,"depositpaid":true,"bookingdates":{"checkin":"not-a-date","checkout":"2030-12-03"}}' # com.leegality.api.steps.BookingSteps.createBookingWithPayload(java.lang.String)
+  Then the request is rejected with status 400                                                                                                                                    # com.leegality.api.steps.BookingSteps.requestIsRejected(int)
+      java.lang.AssertionError: 1 expectation failed.
+Expected status code <400> but was <200>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.requestIsRejected(BookingSteps.java:220)
+	at ✽.the request is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:44)
+
+
+>>> DELETE https://restful-booker.herokuapp.com/booking/3575
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+
+@read @negative @P2
+Scenario: Unknown booking ID returns not found # src/test/resources/features/bookings.feature:57
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available           # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> GET https://restful-booker.herokuapp.com/booking/99999999
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 404
+Response body: Not Found
+  When I read booking 99999999                 # com.leegality.api.steps.BookingSteps.readBookingId(int)
+  Then the booking does not exist              # com.leegality.api.steps.BookingSteps.bookingDoesNotExist()
+
+@create @read @P2
+Scenario: Booking list can filter to a uniquely created booking # src/test/resources/features/bookings.feature:62
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available                            # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> POST https://restful-booker.herokuapp.com/booking
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":"QA855441879218000","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}
+<<< HTTP 200
+Response body: {"bookingid":3640,"booking":{"firstname":"QA855441879218000","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}}
+
+>>> GET https://restful-booker.herokuapp.com/booking?firstname=QA855441879218000
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 200
+Response body: [{"bookingid":3640}]
+  When I list bookings filtered by a unique created name        # com.leegality.api.steps.BookingSteps.listBookingsByUniqueName()
+  Then the list includes the newly created booking ID           # com.leegality.api.steps.BookingSteps.listIncludesCreatedBookingId()
+
+>>> DELETE https://restful-booker.herokuapp.com/booking/3640
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+
+@create @boundary @P2
+Scenario: Zero total price is accepted as a nonnegative boundary # src/test/resources/features/bookings.feature:67
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available                             # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> POST https://restful-booker.herokuapp.com/booking
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":"QA855447305698400","lastname":"Automation","totalprice":0,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}
+<<< HTTP 200
+Response body: {"bookingid":3685,"booking":{"firstname":"QA855447305698400","lastname":"Automation","totalprice":0,"depositpaid":true,"bookingdates":{"checkin":"2026-10-25","checkout":"2026-10-28"},"additionalneeds":"Breakfast"}}
+  When I create a booking with zero price                        # com.leegality.api.steps.BookingSteps.createZeroPriceBooking()
+  Then the zero-price booking is accepted                        # com.leegality.api.steps.BookingSteps.zeroPriceIsAcceptedAsNonnegative()
+
+>>> DELETE https://restful-booker.herokuapp.com/booking/3685
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+
+@create @boundary @P1
+Scenario: Checkout before check-in is rejected     # src/test/resources/features/bookings.feature:72
+
+>>> GET https://restful-booker.herokuapp.com/ping
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+  Given the booking API is available               # com.leegality.api.steps.BookingSteps.apiIsAvailable()
+
+>>> POST https://restful-booker.herokuapp.com/booking
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: {"firstname":"QA855451504966700","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkout":"2030-12-01","checkin":"2030-12-10"},"additionalneeds":"Breakfast"}
+<<< HTTP 200
+Response body: {"bookingid":3721,"booking":{"firstname":"QA855451504966700","lastname":"Automation","totalprice":275,"depositpaid":true,"bookingdates":{"checkin":"2030-12-10","checkout":"2030-12-01"},"additionalneeds":"Breakfast"}}
+  When I create a booking with reversed stay dates # com.leegality.api.steps.BookingSteps.createBookingWithReversedDates()
+  Then the booking is rejected with status 400     # com.leegality.api.steps.BookingSteps.bookingIsRejected(int)
+      java.lang.AssertionError: 1 expectation failed.
+Expected status code <400> but was <200>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.bookingIsRejected(BookingSteps.java:308)
+	at ✽.the booking is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:74)
+
+
+>>> DELETE https://restful-booker.herokuapp.com/booking/3721
+Request headers: Accept: application/json; Content-Type: application/json
+Request body: <none>
+<<< HTTP 201
+Response body: Created
+[ERROR] Tests run: 17, Failures: 9, Errors: 0, Skipped: 0, Time elapsed: 101.3 s <<< FAILURE! -- in com.leegality.api.RunCucumberTest
+[ERROR] Booking API safety net.Invalid booking payloads are rejected #1 -- Time elapsed: 2.888 s <<< FAILURE!
+java.lang.AssertionError: 
+1 expectation failed.
+Expected status code <400> but was <500>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCallConstructor(CallSiteArray.java:57)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:263)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.requestIsRejected(BookingSteps.java:220)
+	at ?.the request is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:44)
+
+[ERROR] Booking API safety net.Invalid booking payloads are rejected #2 -- Time elapsed: 2.824 s <<< FAILURE!
+java.lang.AssertionError: 
+1 expectation failed.
+Expected status code <400> but was <500>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.requestIsRejected(BookingSteps.java:220)
+	at ?.the request is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:44)
+
+[ERROR] Booking API safety net.Invalid booking payloads are rejected #3 -- Time elapsed: 2.580 s <<< FAILURE!
+java.lang.AssertionError: 
+1 expectation failed.
+Expected status code <400> but was <500>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.requestIsRejected(BookingSteps.java:220)
+	at ?.the request is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:44)
+
+[ERROR] Booking API safety net.Invalid booking payloads are rejected #4 -- Time elapsed: 4.373 s <<< FAILURE!
+java.lang.AssertionError: 
+1 expectation failed.
+Expected status code <400> but was <200>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.requestIsRejected(BookingSteps.java:220)
+	at ?.the request is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:44)
+
+[ERROR] Booking API safety net.Invalid booking payloads are rejected #5 -- Time elapsed: 4.218 s <<< FAILURE!
+java.lang.AssertionError: 
+1 expectation failed.
+Expected status code <400> but was <200>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.requestIsRejected(BookingSteps.java:220)
+	at ?.the request is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:44)
+
+[ERROR] Booking API safety net.Invalid booking payloads are rejected #6 -- Time elapsed: 4.508 s <<< FAILURE!
+java.lang.AssertionError: 
+1 expectation failed.
+Expected status code <400> but was <200>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.requestIsRejected(BookingSteps.java:220)
+	at ?.the request is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:44)
+
+[ERROR] Booking API safety net.Invalid booking payloads are rejected #7 -- Time elapsed: 4.481 s <<< FAILURE!
+java.lang.AssertionError: 
+1 expectation failed.
+Expected status code <400> but was <200>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.requestIsRejected(BookingSteps.java:220)
+	at ?.the request is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:44)
+
+[ERROR] Booking API safety net.Invalid booking payloads are rejected #8 -- Time elapsed: 4.617 s <<< FAILURE!
+java.lang.AssertionError: 
+1 expectation failed.
+Expected status code <400> but was <200>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.requestIsRejected(BookingSteps.java:220)
+	at ?.the request is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:44)
+
+[ERROR] Booking API safety net.Checkout before check-in is rejected -- Time elapsed: 4.327 s <<< FAILURE!
+java.lang.AssertionError: 
+1 expectation failed.
+Expected status code <400> but was <200>.
+
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+	at jdk.internal.reflect.GeneratedMethodAccessor93.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at com.leegality.api.steps.BookingSteps.bookingIsRejected(BookingSteps.java:308)
+	at ?.the booking is rejected with status 400(file:///C:/Users/alokg/Documents/Codex/2026-09-24/act-like-you-have-20-years/work/project-explain/restful-booker-api-automation/src/test/resources/features/bookings.feature:74)
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   1 expectation failed.
+Expected status code <400> but was <200>.
+
+[ERROR]   1 expectation failed.
+Expected status code <400> but was <500>.
+
+[ERROR]   1 expectation failed.
+Expected status code <400> but was <500>.
+
+[ERROR]   1 expectation failed.
+Expected status code <400> but was <500>.
+
+[ERROR]   1 expectation failed.
+Expected status code <400> but was <200>.
+
+[ERROR]   1 expectation failed.
+Expected status code <400> but was <200>.
+
+[ERROR]   1 expectation failed.
+Expected status code <400> but was <200>.
+
+[ERROR]   1 expectation failed.
+Expected status code <400> but was <200>.
+
+[ERROR]   1 expectation failed.
+Expected status code <400> but was <200>.
+
+[INFO] 
+[ERROR] Tests run: 17, Failures: 9, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:54 min
+[INFO] Finished at: 2026-09-25T09:38:09+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.5.2:test (default-test) on project restful-booker-api-automation: There are test failures.
+[ERROR] 
+[ERROR] See C:\Users\alokg\Documents\Codex\2026-09-24\act-like-you-have-20-years\work\project-explain\restful-booker-api-automation\target\surefire-reports for the individual test results.
+[ERROR] See dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

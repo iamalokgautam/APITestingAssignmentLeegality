@@ -7,7 +7,7 @@
 
 ## What the suite is proving
 
-This project is intentionally structured as a QA safety net: it verifies the expected Booking API contract, then checks whether the live public sandbox violates that contract.
+This project is intentionally structured as a QA safety net: it verifies the expected Booking API contract, then checks whether the live public sandbox violates that contract. The value is not only in confirming the happy path, but in proving the team can catch regressions that would otherwise reach production.
 
 The happy-path journey passed end to end: valid create/read/PUT/PATCH/delete flows, token retrieval, auth rejection, unknown-ID handling, list filtering, and the zero-price boundary all behaved as expected for the current environment.
 

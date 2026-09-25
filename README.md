@@ -2,6 +2,8 @@
 
 This project is a QA safety net for the Booking API used by Reservation Hub. It covers the core customer flow, auth policy, negative validation, and boundary checks for a public sandboxed API that is intentionally seeded with defects.
 
+From a reviewer perspective, this is designed to demonstrate practical QA judgement: strong regression coverage, business-rule assertions, defect documentation, and clear evidence that the live API can violate the expected contract.
+
 Run with Maven 3.8+:
 
 ```bash
@@ -71,4 +73,4 @@ The project includes:
 - JSON and XML result artifacts
 - a defect log with exact reproduction steps and expected vs actual behavior
 
-This combination gives both engineering and non-technical stakeholders a clear view of the product risk and the remediation work needed.
+This combination gives both engineering and non-technical stakeholders a clear view of the product risk and the remediation work needed. In short, this is a safety-net suite that does not just test happy paths; it catches the kinds of validation regressions that matter to customers and partners.

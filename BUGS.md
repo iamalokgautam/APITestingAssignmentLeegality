@@ -3,7 +3,7 @@
 **Target:** `https://restful-booker.herokuapp.com`  
 **Observed:** 25 September 2026. Requests used `Accept: application/json`. Created invalid records were removed by the scenario teardown or direct cleanup after reproduction.
 
-This defect log is written in product terms: the suite is asserting the expected business contract for Booking creation, and the public sandbox currently violates that contract in several places.
+This defect log is written in product terms: the suite is asserting the expected business contract for Booking creation, and the public sandbox currently violates that contract in several places. These findings are valuable because they reflect the exact kind of data-quality and validation issues that can reach production and trigger partner escalations if left unchecked.
 
 ## RB-01 - Missing or mistyped required fields produce HTTP 500
 
